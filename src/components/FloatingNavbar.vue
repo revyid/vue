@@ -1,258 +1,191 @@
 <template>
-  <!-- Enhanced Navigation -->
+  <!-- Enhanced Navigation with AI Chat Toggle -->
   <nav 
-    class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ease-out px-4"
+    class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-500 ease-out"
     :class="{ 
       'translate-y-0 opacity-100': isNavVisible, 
       '-translate-y-20 opacity-0': !isNavVisible 
     }"
   >
-    <div class="glass-enhanced rounded-full px-4 sm:px-8 py-3 sm:py-4 shadow-2xl backdrop-blur-xl border border-white/20">
-      <ul class="flex items-center space-x-4 sm:space-x-10 text-xs sm:text-sm font-semibold">
-        <li v-for="item in navItems" :key="item.id">
-          <a 
-            :href="`#${item.id}`" 
-            @click="scrollTo(item.id)"
-            class="relative text-white/80 hover:text-[#42b883] transition-all duration-300 hover:scale-110 transform group px-1 sm:px-0"
-          >
-            {{ item.label }}
-            <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#42b883] to-[#35495e] transition-all duration-300 group-hover:w-full"></span>
-          </a>
-        </li>
-      </ul>
+    <div class="flex items-center space-x-4">
+      <!-- Main Navigation -->
+      <div class="glass-enhanced rounded-full px-6 md:px-8 py-3 md:py-4 shadow-2xl backdrop-blur-xl border border-white/20">
+        <ul class="flex items-center space-x-4 md:space-x-8 text-xs md:text-sm font-semibold">
+          <li v-for="item in navItems" :key="item.id">
+            <a 
+              :href="`#${item.id}`" 
+              @click="scrollTo(item.id)"
+              class="relative text-white/80 hover:text-[#42b883] transition-all duration-300 hover:scale-110 transform group whitespace-nowrap"
+            >
+              {{ item.label }}
+              <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#42b883] to-[#35495e] transition-all duration-300 group-hover:w-full"></span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- AI Chat Toggle Button -->
+      <button
+        @click="toggleChat"
+        class="glass-enhanced w-12 h-12 md:w-14 md:h-14 rounded-full shadow-2xl hover:shadow-[#42b883]/25 transition-all duration-300 hover:scale-110 transform flex items-center justify-center group border border-white/20"
+        :class="{ 'bg-gradient-to-r from-[#42b883] to-[#35495e]': isChatOpen, 'hover:bg-white/10': !isChatOpen }"
+        title="AI Assistant"
+      >
+        <svg 
+          v-if="!isChatOpen" 
+          class="w-6 h-6 md:w-7 md:h-7 text-white transition-transform duration-300 group-hover:scale-110" 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+        </svg>
+        <svg 
+          v-else 
+          class="w-6 h-6 md:w-7 md:h-7 text-white transition-transform duration-300" 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
     </div>
   </nav>
 
-  <!-- AI Chat Toggle Button - Positioned next to navigation -->
-  <button
-    @click="toggleChat"
-    class="fixed top-4 right-4 sm:right-8 z-50 w-12 h-12 sm:w-14 sm:h-14 rounded-full glass-enhanced shadow-2xl hover:shadow-[#42b883]/25 transition-all duration-300 hover:scale-110 transform flex items-center justify-center group border border-white/20"
-    :class="{ 
-      'rotate-45': isChatOpen,
-      'bg-gradient-to-r from-[#42b883]/20 to-[#35495e]/20': !isChatOpen,
-      'bg-gradient-to-r from-[#42b883]/30 to-[#35495e]/30': isChatOpen
-    }"
-  >
-    <!-- AI Icon when closed -->
-    <svg 
-      v-if="!isChatOpen" 
-      class="w-6 h-6 sm:w-7 sm:h-7 text-white transition-transform duration-300 group-hover:scale-110" 
-      fill="none" 
-      stroke="currentColor" 
-      viewBox="0 0 24 24"
-    >
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-    </svg>
-    <!-- Close Icon when open -->
-    <svg 
-      v-else 
-      class="w-6 h-6 sm:w-7 sm:h-7 text-white transition-transform duration-300" 
-      fill="none" 
-      stroke="currentColor" 
-      viewBox="0 0 24 24"
-    >
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-    </svg>
-    
-    <!-- Online indicator -->
-    <div class="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse border-2 border-white/20"></div>
-  </button>
-
-  <!-- AI Chat Interface -->
-  <transition name="chat-slide">
-    <div 
-      v-if="isChatOpen"
-      class="fixed inset-4 sm:bottom-6 sm:right-6 sm:top-auto sm:left-auto sm:w-96 sm:h-[600px] backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/10 z-40 flex flex-col overflow-hidden glass-enhanced"
-    >
-      <!-- Chat Header -->
-      <div class="bg-gradient-to-r from-[#42b883] to-[#35495e] p-4 flex items-center justify-between rounded-t-2xl">
-        <div class="flex items-center space-x-3">
-          <div class="relative">
-            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-              </svg>
-            </div>
-            <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
-          </div>
-          <div>
-            <h3 class="text-white font-semibold text-sm sm:text-base">AI Assistant</h3>
-            <p class="text-white/70 text-xs">Always here to help</p>
-          </div>
-        </div>
-        <div class="flex items-center space-x-2">
-          <button 
-            @click="clearChat"
-            class="text-white/70 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/10"
-            title="Clear Chat"
-          >
-            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-            </svg>
-          </button>
-          <!-- Mobile close button -->
-          <button 
-            @click="isChatOpen = false"
-            class="sm:hidden text-white/70 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/10"
-            title="Close Chat"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Chat Messages Container -->
+  <!-- AI Chat Interface - Responsive -->
+  <teleport to="body">
+    <transition name="chat-slide">
       <div 
-        ref="chatContainer"
-        class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent"
+        v-if="isChatOpen"
+        class="fixed inset-0 z-40 lg:inset-auto lg:top-24 lg:right-8 lg:bottom-8 lg:left-auto"
+        :class="chatContainerClasses"
       >
+        <!-- Mobile backdrop -->
         <div 
-          v-for="(message, index) in chatHistory" 
-          :key="index"
-          class="message-container"
-          :class="message.role === 'user' ? 'justify-end' : 'justify-start'"
-        >
-          <div 
-            class="max-w-[85%] sm:max-w-[80%] p-3 sm:p-4 rounded-2xl relative group shadow-lg"
-            :class="message.role === 'user' 
-              ? 'bg-gradient-to-r from-[#42b883] to-[#35495e] text-white ml-auto rounded-br-md' 
-              : 'bg-white/10 backdrop-blur-sm text-white border border-white/10 rounded-bl-md'"
-          >
-            <!-- Assistant Avatar -->
-            <div 
-              v-if="message.role === 'assistant'"
-              class="flex items-start space-x-3"
-            >
-              <div class="w-6 h-6 bg-gradient-to-r from-[#42b883] to-[#35495e] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+          v-if="isMobile"
+          class="absolute inset-0 bg-black/50 backdrop-blur-sm lg:hidden"
+          @click="toggleChat"
+        ></div>
+        
+        <!-- Chat Container -->
+        <div class="relative bg-black/95 lg:bg-black/90 backdrop-blur-2xl rounded-none lg:rounded-2xl shadow-2xl border-0 lg:border lg:border-white/10 flex flex-col h-full overflow-hidden">
+          <!-- Chat Header -->
+          <div class="bg-gradient-to-r from-[#42b883] to-[#35495e] p-4 lg:p-4 flex items-center justify-between shrink-0">
+            <div class="flex items-center space-x-3">
+              <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+              <h3 class="text-white font-semibold text-sm lg:text-base">AI Assistant</h3>
+              <span class="text-white/60 text-xs hidden md:inline">Powered by OpenRouter</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button 
+                @click="clearChat"
+                class="text-white/70 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/10"
+                title="Clear Chat"
+              >
+                <svg class="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                 </svg>
-              </div>
-              <div class="flex-1">
+              </button>
+              <button 
+                v-if="isMobile"
+                @click="toggleChat"
+                class="text-white/70 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/10 lg:hidden"
+                title="Close Chat"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Chat Messages Container -->
+          <div 
+            ref="chatContainer"
+            class="flex-1 overflow-y-auto p-3 lg:p-4 space-y-3 lg:space-y-4 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent min-h-0"
+          >
+            <div 
+              v-for="(message, index) in chatHistory" 
+              :key="index"
+              class="message-container"
+              :class="message.role === 'user' ? 'justify-end' : 'justify-start'"
+            >
+              <div 
+                class="max-w-[85%] lg:max-w-[80%] p-3 rounded-2xl relative group"
+                :class="message.role === 'user' 
+                  ? 'bg-gradient-to-r from-[#42b883] to-[#35495e] text-white ml-auto' 
+                  : 'bg-white/10 backdrop-blur-sm text-white'"
+              >
                 <!-- Message Content -->
                 <div 
-                  v-if="message.isTyping"
-                  class="typing-animation text-sm sm:text-base"
+                  v-if="message.role === 'assistant' && message.isTyping"
+                  class="typing-animation text-sm lg:text-base"
                   v-html="message.displayContent"
                 ></div>
                 <div 
                   v-else
-                  class="message-content text-sm sm:text-base"
+                  class="message-content text-sm lg:text-base"
                   v-html="formatMessage(message.content)"
                 ></div>
                 
-                <!-- Timestamp -->
-                <div class="text-xs text-white/50 mt-2">
-                  {{ formatTime(message.timestamp) }}
+                <!-- Message Actions -->
+                <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <button 
+                    v-if="message.role === 'assistant'"
+                    @click="copyMessage(message.content)"
+                    class="text-white/60 hover:text-white transition-colors p-1 rounded"
+                    title="Copy message"
+                  >
+                    <svg class="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    </svg>
+                  </button>
                 </div>
               </div>
             </div>
-            
-            <!-- User Message -->
-            <div v-else>
-              <div 
-                class="message-content text-sm sm:text-base"
-                v-html="formatMessage(message.content)"
-              ></div>
-              <div class="text-xs text-white/70 mt-2 text-right">
-                {{ formatTime(message.timestamp) }}
+
+            <!-- Typing Indicator -->
+            <div v-if="isAiTyping" class="flex justify-start">
+              <div class="bg-white/10 backdrop-blur-sm p-3 rounded-2xl">
+                <div class="flex space-x-1">
+                  <div class="w-2 h-2 bg-[#42b883] rounded-full animate-bounce"></div>
+                  <div class="w-2 h-2 bg-[#42b883] rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                  <div class="w-2 h-2 bg-[#42b883] rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                </div>
               </div>
             </div>
-            
-            <!-- Message Actions -->
-            <div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <button 
-                v-if="message.role === 'assistant'"
-                @click="copyMessage(message.content)"
-                class="text-white/60 hover:text-white transition-colors p-1 rounded"
-                title="Copy message"
+          </div>
+
+          <!-- Chat Input -->
+          <div class="p-3 lg:p-4 border-t border-white/10 shrink-0">
+            <div class="flex space-x-2">
+              <input
+                v-model="currentMessage"
+                @keypress.enter="sendMessage"
+                placeholder="Ask me anything..."
+                class="flex-1 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-3 lg:px-4 py-2 lg:py-2.5 text-sm lg:text-base text-white placeholder-white/50 focus:outline-none focus:border-[#42b883] transition-colors"
+                :disabled="isAiTyping"
+              />
+              <button
+                @click="sendMessage"
+                :disabled="!currentMessage.trim() || isAiTyping"
+                class="bg-gradient-to-r from-[#42b883] to-[#35495e] text-white px-3 lg:px-4 py-2 lg:py-2.5 rounded-xl hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
               >
-                <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                <svg class="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                 </svg>
               </button>
             </div>
           </div>
         </div>
-
-        <!-- Typing Indicator -->
-        <div v-if="isAiTyping" class="flex justify-start">
-          <div class="bg-white/10 backdrop-blur-sm p-3 sm:p-4 rounded-2xl border border-white/10 rounded-bl-md shadow-lg">
-            <div class="flex items-center space-x-2">
-              <div class="w-6 h-6 bg-gradient-to-r from-[#42b883] to-[#35495e] rounded-full flex items-center justify-center">
-                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                </svg>
-              </div>
-              <div class="flex space-x-1">
-                <div class="w-2 h-2 bg-[#42b883] rounded-full animate-bounce"></div>
-                <div class="w-2 h-2 bg-[#42b883] rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                <div class="w-2 h-2 bg-[#42b883] rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-
-      <!-- Chat Input -->
-      <div class="p-3 sm:p-4 border-t border-white/10 bg-white/5 rounded-b-2xl">
-        <div class="flex space-x-2 sm:space-x-3">
-          <div class="flex-1 relative">
-            <input
-              v-model="currentMessage"
-              @keypress.enter="sendMessage"
-              placeholder="Ask me anything..."
-              class="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-white placeholder-white/50 focus:outline-none focus:border-[#42b883] focus:ring-2 focus:ring-[#42b883]/20 transition-all text-sm sm:text-base pr-12"
-              :disabled="isAiTyping"
-            />
-            <!-- Send button for mobile (inside input) -->
-            <button
-              @click="sendMessage"
-              :disabled="!currentMessage.trim() || isAiTyping"
-              class="absolute right-2 top-1/2 transform -translate-y-1/2 sm:hidden w-8 h-8 bg-gradient-to-r from-[#42b883] to-[#35495e] text-white rounded-lg hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-              </svg>
-            </button>
-          </div>
-          <!-- Send button for desktop -->
-          <button
-            @click="sendMessage"
-            :disabled="!currentMessage.trim() || isAiTyping"
-            class="hidden sm:flex bg-gradient-to-r from-[#42b883] to-[#35495e] text-white px-4 py-3 rounded-xl hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed items-center justify-center min-w-[48px]"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-            </svg>
-          </button>
-        </div>
-        
-        <!-- Quick Actions -->
-        <div class="flex flex-wrap gap-2 mt-3 sm:mt-4">
-          <button
-            v-for="quickAction in quickActions"
-            :key="quickAction.text"
-            @click="sendQuickMessage(quickAction.text)"
-            class="px-3 py-1 bg-white/10 hover:bg-white/20 text-white/80 hover:text-white rounded-full text-xs transition-all duration-200 border border-white/10 hover:border-white/20"
-            :disabled="isAiTyping"
-          >
-            {{ quickAction.label }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </transition>
+    </transition>
+  </teleport>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
-
-// Environment variables
-const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY
-const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
+import { ref, onMounted, onUnmounted, nextTick, watch, computed } from 'vue'
 
 // Navigation state
 const isNavVisible = ref(true)
@@ -276,41 +209,75 @@ const currentMessage = ref('')
 const isAiTyping = ref(false)
 const chatContainer = ref<HTMLElement>()
 
-// Quick actions
-const quickActions = ref([
-  { label: '👋 Hello', text: 'Hello! Can you introduce yourself?' },
-  { label: '💼 Projects', text: 'Tell me about the projects in this portfolio' },
-  { label: '🛠️ Skills', text: 'What technologies and skills are showcased here?' },
-  { label: '📱 Contact', text: 'How can I get in touch?' }
-])
+// Responsive state
+const isMobile = ref(false)
+
+// Computed properties
+const chatContainerClasses = computed(() => ({
+  'w-full h-full': isMobile.value,
+  'w-96 h-[600px]': !isMobile.value
+}))
+
+// Environment variables - Replace with your actual API key
+const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY
+const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions'
 
 // System prompt for AI personality
-const SYSTEM_PROMPT = `You are a helpful and knowledgeable AI assistant integrated into a developer's portfolio website. Your role is to:
+const SYSTEM_PROMPT = `You are a sophisticated AI assistant integrated into a modern developer's portfolio website. Your core responsibilities include:
 
-1. **Portfolio Assistant**: Help visitors understand the developer's skills, projects, and experience
-2. **Technical Expert**: Provide detailed explanations about web development, programming concepts, and technologies
-3. **Code Helper**: Assist with coding questions, debugging, and best practices
-4. **Project Advisor**: Offer insights on project ideas, architecture decisions, and implementation strategies
+**Portfolio Expertise:**
+- Detailed knowledge of web development technologies (Vue.js, React, JavaScript, TypeScript, CSS, HTML)
+- Understanding of modern development practices, tools, and frameworks
+- Ability to explain complex technical concepts in accessible terms
 
-Key Guidelines:
-- Be conversational but professional
-- Provide code examples when relevant
-- Use markdown formatting for better readability
-- Be encouraging and supportive
-- Stay up-to-date with modern web development practices
-- Reference the portfolio content when appropriate
-- Keep responses concise but informative
-- Use emojis sparingly but effectively
+**Professional Assistance:**
+- Help visitors understand the developer's skills, projects, and technical expertise
+- Provide insights on web development best practices and industry trends
+- Offer guidance on project architecture, implementation strategies, and code optimization
+- Assist with debugging, code reviews, and technical problem-solving
 
-Current Context: You're chatting with someone viewing a Vue.js developer's portfolio that features modern web technologies, responsive design, and interactive elements.`
+**Communication Style:**
+- Professional yet approachable and conversational
+- Provide detailed, well-structured responses with practical examples
+- Use markdown formatting for better readability (code blocks, lists, emphasis)
+- Be encouraging and supportive while maintaining technical accuracy
+
+**Key Guidelines:**
+- Always provide working code examples when relevant
+- Reference modern web development practices and current industry standards
+- Explain the "why" behind technical decisions, not just the "how"
+- Offer multiple solutions when appropriate, explaining trade-offs
+- Stay current with emerging technologies and development trends
+
+**Context Awareness:**
+You're currently integrated into a Vue.js portfolio featuring modern responsive design, glassmorphism UI elements, and advanced interactive features. The site demonstrates expertise in modern web technologies and user experience design.
+
+Remember: You're not just answering questions - you're representing professional development expertise and helping visitors understand the quality and depth of technical knowledge showcased in this portfolio.`
 
 let lastScrollY = 0
+let scrollTimeoutId: number | null = null
 
-// Navigation scroll handler
+// Optimized navigation scroll handler
 const handleScroll = () => {
-  const currentScrollY = window.scrollY
-  isNavVisible.value = currentScrollY < lastScrollY || currentScrollY < 100
-  lastScrollY = currentScrollY
+  if (scrollTimeoutId) {
+    cancelAnimationFrame(scrollTimeoutId)
+  }
+  
+  scrollTimeoutId = requestAnimationFrame(() => {
+    const currentScrollY = window.scrollY
+    const scrollDelta = Math.abs(currentScrollY - lastScrollY)
+    
+    // Only update if significant scroll change (performance optimization)
+    if (scrollDelta > 5) {
+      isNavVisible.value = currentScrollY < lastScrollY || currentScrollY < 100
+      lastScrollY = currentScrollY
+    }
+  })
+}
+
+// Responsive detection
+const updateResponsiveState = () => {
+  isMobile.value = window.innerWidth < 1024
 }
 
 // Smooth scroll to section
@@ -329,7 +296,7 @@ const toggleChat = () => {
   isChatOpen.value = !isChatOpen.value
   if (isChatOpen.value && chatHistory.value.length === 0) {
     // Welcome message
-    addAssistantMessage("👋 Hello! I'm your AI assistant. I can help you with web development questions, explain projects, or discuss anything tech-related. How can I assist you today?")
+    addAssistantMessage("👋 Hello! I'm your AI assistant. I can help you with web development questions, explain the projects showcased here, discuss modern development practices, or assist with any coding challenges you're facing. What would you like to explore today?")
   }
 }
 
@@ -346,6 +313,8 @@ const addAssistantMessage = (content: string, useTypingEffect = true) => {
   
   if (useTypingEffect) {
     typeMessage(message)
+  } else {
+    message.displayContent = content
   }
   
   saveChatHistory()
@@ -353,24 +322,29 @@ const addAssistantMessage = (content: string, useTypingEffect = true) => {
 }
 
 const typeMessage = async (message: any) => {
-  const words = message.content.split(' ')
+  const text = message.content
   let currentIndex = 0
   
   const typeInterval = setInterval(() => {
-    if (currentIndex < words.length) {
-      message.displayContent = words.slice(0, currentIndex + 1).join(' ')
+    if (currentIndex < text.length) {
+      message.displayContent = text.substring(0, currentIndex + 1)
       currentIndex++
       scrollToBottom()
     } else {
       message.isTyping = false
-      message.displayContent = message.content
       clearInterval(typeInterval)
     }
-  }, 50) // Adjust typing speed here
+  }, 30) // Faster typing for better UX
 }
 
 const sendMessage = async () => {
   if (!currentMessage.value.trim() || isAiTyping.value) return
+
+  // Check if API key is configured
+  if (!OPENROUTER_API_KEY) {
+    addAssistantMessage("⚠️ OpenRouter API key is not configured. Please add VITE_OPENROUTER_API_KEY to your .env file.", false)
+    return
+  }
 
   const userMessage = {
     role: 'user' as const,
@@ -384,10 +358,6 @@ const sendMessage = async () => {
   isAiTyping.value = true
 
   try {
-    if (!OPENROUTER_API_KEY) {
-      throw new Error('API key not configured')
-    }
-
     const response = await fetch(OPENROUTER_API_URL, {
       method: 'POST',
       headers: {
@@ -406,12 +376,14 @@ const sendMessage = async () => {
           }))
         ],
         temperature: 0.7,
-        max_tokens: 1000
+        max_tokens: 1500,
+        stream: false
       })
     })
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+      const errorData = await response.text()
+      throw new Error(`API Error (${response.status}): ${errorData}`)
     }
 
     const data = await response.json()
@@ -420,10 +392,16 @@ const sendMessage = async () => {
     addAssistantMessage(aiResponse)
   } catch (error) {
     console.error('Error calling OpenRouter API:', error)
-    let errorMessage = "Sorry, I'm experiencing some technical difficulties. Please try again later."
+    let errorMessage = "Sorry, I'm experiencing some technical difficulties. "
     
-    if (error instanceof Error && error.message === 'API key not configured') {
-      errorMessage = "API key is not configured. Please check your environment variables."
+    if (error instanceof Error) {
+      if (error.message.includes('401')) {
+        errorMessage += "Please check your API key configuration."
+      } else if (error.message.includes('429')) {
+        errorMessage += "Rate limit reached. Please try again in a moment."
+      } else {
+        errorMessage += "Please try again later."
+      }
     }
     
     addAssistantMessage(errorMessage, false)
@@ -433,32 +411,19 @@ const sendMessage = async () => {
   }
 }
 
-const sendQuickMessage = (message: string) => {
-  if (isAiTyping.value) return
-  currentMessage.value = message
-  sendMessage()
-}
-
 const formatMessage = (content: string) => {
   // Enhanced markdown-like formatting
   return content
-    .replace(/\*\*(.*?)\*\*/g, '<strong class="text-[#42b883]">$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/`(.*?)`/g, '<code class="bg-white/20 px-2 py-1 rounded text-sm font-mono">$1</code>')
-    .replace(/```([\s\S]*?)```/g, '<pre class="bg-white/10 p-3 rounded-lg mt-2 mb-2 overflow-x-auto border border-white/10"><code class="font-mono text-sm">$1</code></pre>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>')
+    .replace(/`(.*?)`/g, '<code class="bg-white/20 px-1.5 py-0.5 rounded text-sm font-mono">$1</code>')
+    .replace(/```(\w+)?\n?([\s\S]*?)```/g, '<pre class="bg-white/10 p-3 rounded-lg mt-2 mb-2 overflow-x-auto border border-white/10"><code class="text-sm font-mono">$2</code></pre>')
+    .replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mt-3 mb-2 text-[#42b883]">$1</h3>')
+    .replace(/^## (.*$)/gm, '<h2 class="text-xl font-bold mt-4 mb-2 text-[#42b883]">$1</h2>')
+    .replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold mt-4 mb-3 text-[#42b883]">$1</h1>')
+    .replace(/^\- (.*$)/gm, '<li class="ml-4 list-disc">$1</li>')
+    .replace(/^\d+\. (.*$)/gm, '<li class="ml-4 list-decimal">$1</li>')
     .replace(/\n/g, '<br>')
-}
-
-const formatTime = (timestamp: number) => {
-  const date = new Date(timestamp)
-  const now = new Date()
-  const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
-  
-  if (diffInMinutes < 1) return 'Just now'
-  if (diffInMinutes < 60) return `${diffInMinutes}m ago`
-  if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`
-  
-  return date.toLocaleDateString()
 }
 
 const copyMessage = async (content: string) => {
@@ -467,50 +432,56 @@ const copyMessage = async (content: string) => {
     // Could add a toast notification here
   } catch (err) {
     console.error('Failed to copy text: ', err)
+    // Fallback for older browsers
+    const textArea = document.createElement('textarea')
+    textArea.value = content
+    document.body.appendChild(textArea)
+    textArea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textArea)
   }
 }
 
 const clearChat = () => {
   chatHistory.value = []
-  if (typeof localStorage !== 'undefined') {
-    localStorage.removeItem('portfolio-chat-history')
-  }
-  addAssistantMessage("Chat cleared! How can I help you today?")
+  localStorage.removeItem('portfolio-chat-history')
+  addAssistantMessage("🔄 Chat cleared! Ready for a fresh conversation. How can I assist you today?")
 }
 
 const saveChatHistory = () => {
-  if (typeof localStorage === 'undefined') return
-  
-  const historyToSave = chatHistory.value.map(msg => ({
-    role: msg.role,
-    content: msg.content,
-    timestamp: msg.timestamp
-  }))
-  localStorage.setItem('portfolio-chat-history', JSON.stringify(historyToSave))
+  try {
+    const historyToSave = chatHistory.value.map(msg => ({
+      role: msg.role,
+      content: msg.content,
+      timestamp: msg.timestamp
+    }))
+    localStorage.setItem('portfolio-chat-history', JSON.stringify(historyToSave))
+  } catch (error) {
+    console.error('Error saving chat history:', error)
+  }
 }
 
 const loadChatHistory = () => {
-  if (typeof localStorage === 'undefined') return
-  
-  const saved = localStorage.getItem('portfolio-chat-history')
-  if (saved) {
-    try {
+  try {
+    const saved = localStorage.getItem('portfolio-chat-history')
+    if (saved) {
       const history = JSON.parse(saved)
       chatHistory.value = history.map((msg: any) => ({
         ...msg,
         isTyping: false,
         displayContent: msg.content
       }))
-    } catch (error) {
-      console.error('Error loading chat history:', error)
     }
+  } catch (error) {
+    console.error('Error loading chat history:', error)
   }
 }
 
 const scrollToBottom = () => {
   nextTick(() => {
     if (chatContainer.value) {
-      chatContainer.value.scrollTop = chatContainer.value.scrollHeight
+      const container = chatContainer.value
+      container.scrollTop = container.scrollHeight
     }
   })
 }
@@ -518,54 +489,70 @@ const scrollToBottom = () => {
 // Lifecycle hooks
 onMounted(() => {
   window.addEventListener('scroll', handleScroll, { passive: true })
+  window.addEventListener('resize', updateResponsiveState, { passive: true })
+  updateResponsiveState()
   loadChatHistory()
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+  window.removeEventListener('resize', updateResponsiveState)
+  if (scrollTimeoutId) {
+    cancelAnimationFrame(scrollTimeoutId)
+  }
 })
 
 // Watch for chat container changes to auto-scroll
 watch(() => chatHistory.value.length, () => {
   scrollToBottom()
-})
+}, { flush: 'post' })
 </script>
 
 <style scoped>
 .glass-enhanced {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .message-container {
   display: flex;
+  align-items: flex-end;
 }
 
-.message-content {
-  word-wrap: break-word;
-  line-height: 1.6;
-}
-
-.message-content code {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-}
-
-.message-content pre {
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  line-height: 1.4;
-}
-
+.message-content,
 .typing-animation {
   word-wrap: break-word;
   line-height: 1.6;
 }
 
+.message-content code,
+.typing-animation code {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.message-content pre,
+.typing-animation pre {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.message-content h1,
+.message-content h2,
+.message-content h3 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.message-content li {
+  margin-bottom: 0.25rem;
+}
+
 .chat-slide-enter-active,
 .chat-slide-leave-active {
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .chat-slide-enter-from {
@@ -581,6 +568,7 @@ watch(() => chatHistory.value.length, () => {
 /* Custom scrollbar */
 .scrollbar-thin {
   scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
 .scrollbar-thin::-webkit-scrollbar {
@@ -600,12 +588,6 @@ watch(() => chatHistory.value.length, () => {
   background: rgba(255, 255, 255, 0.3);
 }
 
-/* Smooth animations */
-* {
-  transition-property: transform, opacity, color, background-color, border-color;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 /* Performance optimizations */
 .glass-enhanced,
 .message-container,
@@ -615,142 +597,21 @@ button {
 }
 
 /* Mobile optimizations */
-@media (max-width: 640px) {
-  .chat-slide-enter-from,
-  .chat-slide-leave-to {
-    transform: translateY(50px) scale(0.85);
-  }
-}
-
-/* Enhanced focus states for accessibility */
-button:focus-visible,
-input:focus-visible {
-  outline: 2px solid #42b883;
-  outline-offset: 2px;
-}
-
-/* Loading animation */
-@keyframes bounce {
-  0%, 80%, 100% {
-    transform: scale(0);
-  }
-  40% {
-    transform: scale(1);
-  }
-}
-
-/* Pulse animation for online indicator */
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.7;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-/* Hover effects */
-.group:hover .group-hover\:scale-110 {
-  transform: scale(1.1);
-}
-
-/* Glass morphism enhancements */
-.glass-enhanced {
-  box-shadow: 
-    0 8px 32px 0 rgba(31, 38, 135, 0.37),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
-}
-
-/* Message bubble animations */
-.message-container {
-  animation: messageSlide 0.3s ease-out;
-}
-
-@keyframes messageSlide {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Gradient text for AI responses */
-.ai-gradient-text {
-  background: linear-gradient(135deg, #42b883, #35495e);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Enhanced button hover states */
-button:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-button:not(:disabled):active {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Responsive text sizing */
-@media (max-width: 640px) {
-  .message-content {
-    font-size: 0.875rem;
-    line-height: 1.5;
-  }
-  
-  .message-content code {
-    font-size: 0.8rem;
-  }
-  
-  .message-content pre {
-    font-size: 0.8rem;
-  }
-}
-
-/* Dark mode compatibility */
-@media (prefers-color-scheme: dark) {
+@media (max-width: 1023px) {
   .glass-enhanced {
-    background: rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
   }
 }
 
-/* Accessibility improvements */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+/* Smooth transitions for all interactive elements */
+* {
+  transition-property: transform, opacity, color, background-color, border-color, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  .glass-enhanced {
-    background: rgba(0, 0, 0, 0.8);
-    border: 2px solid white;
-  }
-  
-  .text-white\/80 {
-    color: white;
-  }
-  
-  .text-white\/70 {
-    color: white;
-  }
+/* Prevent layout shift */
+nav {
+  contain: layout style paint;
 }
-
 </style>
